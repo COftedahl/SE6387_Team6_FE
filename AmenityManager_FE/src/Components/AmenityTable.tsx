@@ -6,6 +6,7 @@ import formatter from "../Utility/Formatter";
 import { accessObjectField, setObjectField } from "../Functions/ObjectHandlers";
 import stopProp from "../Functions/StopProp";
 import isNumeric from "../Functions/IsNumeric";
+import validateUpdatedAmenityDetails from "../Functions/ValidateNewAmenityDetails";
 
 interface AmenityTableProps {
   data: IAmenityDetails[], 
@@ -57,8 +58,15 @@ const AmenityTable: React.FC<AmenityTableProps> = (props: AmenityTableProps) => 
       }
       setObjectField(updatedAmenity, expandedCell.field, modifyingFieldValue);
       setObjectField(updatedAmenity, ["lastUpdated"], formatter.format(Date.now()));
-      props.data.splice(expandedCell.index, 1, updatedAmenity), 
-      props.setData(() => [...props.data])
+
+      try {
+        validateUpdatedAmenityDetails(updatedAmenity, allModifiableFields);
+        props.data.splice(expandedCell.index, 1, updatedAmenity), 
+        props.setData(() => [...props.data])
+      }
+      catch (e) {
+        console.error((e as Error).message);
+      }
     }
   }
 
@@ -89,6 +97,7 @@ const AmenityTable: React.FC<AmenityTableProps> = (props: AmenityTableProps) => 
     {property: ["id"], display: "ID"}, 
     {property: ["location", "x"], display: "Longitude"}, 
     {property: ["location", "y"], display: "Latitude"}, 
+    {property: ["room"], display: "Room"}, 
     {property: ["type"], display: "Type"}, 
     {property: ["accessibilityClass"], display: "Accessibility Class"}, 
     {property: ["currentOccupancy"], display: "Current Occupancy"}, 
@@ -101,6 +110,7 @@ const AmenityTable: React.FC<AmenityTableProps> = (props: AmenityTableProps) => 
   const allModifiableFields: string[][] = [
     ["location", "x"], 
     ["location", "y"],  
+    ["room"], 
     ["type"], 
     ["accessibilityClass"], 
     ["currentOccupancy"], 

@@ -3,10 +3,7 @@ import IAmenityDetails from "../Types/IAmenityDetails";
 import BLANK_AMENITY_DETAILS from "./BlankAmenityDetails";
 import { accessObjectField, setObjectField } from "../Functions/ObjectHandlers";
 import stopProp from "../Functions/StopProp";
-import AMENITY_TYPE from "../Types/AmenityType";
-import AMENITY_STATUS from "../Types/AmenityStatus";
-import ACCESSIBILITY_CLASS from "../Types/AccessibilityClass";
-import isNumeric from "../Functions/IsNumeric";
+import validateUpdatedAmenityDetails from "../Functions/ValidateNewAmenityDetails";
 
 interface NewAmenityButtonProps {
   saveAmenity: (newAmenity: IAmenityDetails) => void, 
@@ -22,6 +19,7 @@ const NewAmenityButton: React.FC<NewAmenityButtonProps> = (props: NewAmenityButt
     {property: ["id"], display: "ID"}, 
     {property: ["location", "x"], display: "Longitude"}, 
     {property: ["location", "y"], display: "Latitude"}, 
+    {property: ["room"], display: "Room"}, 
     {property: ["type"], display: "Type"}, 
     {property: ["accessibilityClass"], display: "Accessibility Class"}, 
     {property: ["currentOccupancy"], display: "Current Occupancy"}, 
@@ -40,40 +38,7 @@ const NewAmenityButton: React.FC<NewAmenityButtonProps> = (props: NewAmenityButt
     try {
       setErrorText("");
       //input validation
-      for (let field of allDisplayFields) {
-        const fieldStr: string = field.property.join(".");
-        switch (fieldStr) {
-          case "type": 
-            if (!((Object.values(AMENITY_TYPE) as string[]).includes(accessObjectField(newAmenity, field.property)))) {
-              throw new Error("Invalid " + fieldStr);
-            }
-            break;
-          case "accessibilityClass": 
-            if (!((Object.values(ACCESSIBILITY_CLASS) as string[]).includes(accessObjectField(newAmenity, field.property)))) {
-              throw new Error("Invalid " + fieldStr);
-            }
-            break;
-          case "status": 
-            if (!((Object.values(AMENITY_STATUS) as string[]).includes(accessObjectField(newAmenity, field.property)))) {
-              throw new Error("Invalid " + fieldStr);
-            }
-            break;
-          case "location.x": 
-          case "location.y": 
-          case "currentOccupancy": 
-          case "currentAvailableSlots": 
-          case "capacity": 
-            if (!isNumeric(accessObjectField(newAmenity, field.property))) {
-              throw new Error("Invalid " + fieldStr);
-            }
-            break;
-          default: 
-            if (accessObjectField(newAmenity, field.property).length < 1) {
-              throw new Error("Empty " + fieldStr);
-            }
-            break;
-        }
-      }
+      validateUpdatedAmenityDetails(newAmenity, allDisplayFields.map(({property, display}: {property: string[], display: string}) => property))
       
       //update data
       props.saveAmenity(newAmenity);
