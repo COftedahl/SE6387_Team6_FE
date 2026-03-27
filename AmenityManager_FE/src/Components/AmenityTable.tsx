@@ -1,6 +1,11 @@
 import { useState } from "react";
 import IAmenityDetails from "../Types/IAmenityDetails";
 import TableCell from "./TableCell";
+import TrashcanSVG from "../SVG/TrashcanSVG";
+import formatter from "../Utility/Formatter";
+import { accessObjectField, setObjectField } from "../Functions/ObjectHandlers";
+import stopProp from "../Functions/StopProp";
+import isNumeric from "../Functions/IsNumeric";
 
 interface AmenityTableProps {
   data: IAmenityDetails[], 
@@ -8,20 +13,6 @@ interface AmenityTableProps {
 }
 
 const AmenityTable: React.FC<AmenityTableProps> = (props: AmenityTableProps) => {
-
-  const isNumeric = (value: string): boolean => {
-    return !("" + value).includes(":") && !("" + value).includes("/") && !isNaN(parseFloat(value));
-  }
-
-  const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat("en-US", {
-    hour12: false, 
-    year: "2-digit", 
-    month: "2-digit", 
-    day: "2-digit", 
-    hour: "2-digit", 
-    minute: "2-digit", 
-    second: "2-digit", 
-  });
 
   const [currSortingMethod, setCurrSortingMethod] = useState<string[]>(["id"]);
   const [isReverseSorted, setIsReverseSorted] = useState<boolean>(false);
@@ -89,25 +80,9 @@ const AmenityTable: React.FC<AmenityTableProps> = (props: AmenityTableProps) => 
     setExpandedCell(() => null);
   }
 
-  const stopProp = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-  }
-
-  const accessObjectField = (object: IAmenityDetails, fields: string[]): string => {
-    let currObj: any = object;
-    for (let field of fields) {
-      currObj = currObj[field];
-    }
-    return currObj;
-  }
-
-  const setObjectField = (object: IAmenityDetails, fields: string[], newValue: any) => {
-    let currObj: any = object;
-    while (fields.length > 1) {
-      currObj = currObj[fields.shift() ?? ""];
-    }
-    currObj[fields[0]] = newValue;
+  const handleDeleteClicked = (index: number) => {
+    props.data.splice(index, 1), 
+    props.setData(() => [...props.data])
   }
 
   const allDisplayFields: {property: string[], display: string}[] = [
@@ -148,6 +123,7 @@ const AmenityTable: React.FC<AmenityTableProps> = (props: AmenityTableProps) => 
                 <th scope="col" key={index} className="AmenityTable_Head_Cell" onClick={() => (handleHeaderCellClicked(property))}>{display}</th>
               )
             })}
+            <th scope="col" className="AmenityTable_Head_Cell">Delete</th>
           </tr>
         </thead>
         <tbody className="AmenityTable_Body fullWidth">
@@ -172,6 +148,11 @@ const AmenityTable: React.FC<AmenityTableProps> = (props: AmenityTableProps) => 
                   )
                 })}
                 <td className="AmenityTable_Body_Cell">{amenity.lastUpdated}</td>
+                <td className="AmenityTable_Body_Cell">
+                  <button className="AmenityTable_Body_Cell_DeleteButton AmenityTable_Body_Cell_Button button" onClick={() => handleDeleteClicked(index)}>
+                    <TrashcanSVG width={20} height={20} strokeWidth="3" viewBoxScale={4} strokeColor="red"/>
+                  </button>
+                </td>
               </tr>
             )
           })}

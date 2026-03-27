@@ -338,6 +338,7 @@ div, ul, ol, p {
   visibility: visible;
   transition: var(--transitionDuration) var(--transitionTimingFunction) opacity,
     var(--transitionDuration) var(--transitionTimingFunction) visibility;
+  z-index: calc(var(--headerZIndex) + 1);
 }
 
 .modalBackground-hidden {

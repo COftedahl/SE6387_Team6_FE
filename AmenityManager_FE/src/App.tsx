@@ -2,12 +2,16 @@ import { useEffect, useState } from "react";
 import AmenityTable from "./Components/AmenityTable";
 import IAmenityDetails from "./Types/IAmenityDetails";
 import './Utility/universalstyles_3.css';
+import NewAmenityButton from "./Components/NewAmenityButton";
+import formatter from "./Utility/Formatter";
 
 interface AppProps {
 
 }
 
 const App: React.FC<AppProps> = (props: AppProps) => {
+
+  document.documentElement.style.setProperty("--transitionDuration", "0.25s");
 
   const AMENITIES_BACKEND_URL: string = "http://localhost:5001";
   const RETRIEVE_DETAILS_ENDPOINT: string = "/amenities/details";
@@ -49,13 +53,34 @@ const App: React.FC<AppProps> = (props: AppProps) => {
     })
   }
 
+  const handleAddNewAmenity = async (newAmenity: IAmenityDetails) => {
+    
+    amenities.unshift({
+      ...newAmenity, 
+      lastUpdated: formatter.format(Date.now()),
+    })
+    handleSetAmenities(() => [...amenities]);
+  }
+
   useEffect(() => {
     retrieveData();
   }, []);
 
   return (
     <div className="App flexColumn fullWidth spaceEvenlyJustify centerAlign">
-      <AmenityTable data={amenities} setData={handleSetAmenities}/>
+      <NewAmenityButton saveAmenity={handleAddNewAmenity}/>
+      {amenities.length > 0 ? 
+        <AmenityTable data={amenities} setData={handleSetAmenities}/>
+      :
+        <div className="ErrorDiv flexColumn centerJustify centerAlign padding1 borderBox">
+          <p className="ErrorPar headerText">
+            No data found
+          </p>
+          <button className="ErrorButton button" onClick={retrieveData}>
+            Retry fetching data
+          </button>
+        </div>
+      }
     </div>
   )
 }

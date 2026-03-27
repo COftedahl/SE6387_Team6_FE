@@ -1,4 +1,4 @@
-const enum AMENITY_TYPE {
+enum AMENITY_TYPE {
   BAR = "BAR", 
   COFFEE = "COFFEE", 
   LOUNGE = "LOUNGE", 

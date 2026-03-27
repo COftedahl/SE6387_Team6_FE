@@ -1,4 +1,4 @@
-const enum AMENITY_STATUS {
+enum AMENITY_STATUS {
   OPEN = "OPEN", 
   CLOSED = "CLOSED", 
   OOS = "OOS", 
