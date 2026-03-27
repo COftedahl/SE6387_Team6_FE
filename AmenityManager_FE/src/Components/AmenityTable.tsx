@@ -10,7 +10,7 @@ interface AmenityTableProps {
 const AmenityTable: React.FC<AmenityTableProps> = (props: AmenityTableProps) => {
 
   const isNumeric = (value: string): boolean => {
-    return !value.includes(":") && !value.includes("/") && !isNaN(parseFloat(value));
+    return !("" + value).includes(":") && !("" + value).includes("/") && !isNaN(parseFloat(value));
   }
 
   const formatter: Intl.DateTimeFormat = new Intl.DateTimeFormat("en-US", {
