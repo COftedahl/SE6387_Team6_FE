@@ -3,14 +3,15 @@ import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { View } from 'react-native';
 
 // Screens
-import HomeScreen from '../screens/HomeScreen';
+import MapScreen from '../screens/MapScreen';
 import ReportScreen from '../screens/ReportScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 
 // Screen names
-const homeName = "DFW Airport: Terminal D Interactive Map";
+const mapName = "DFW Airport: Terminal D Interactive Map";
 const reportName = "Submit Report";
 const profileName = "Profile";
 
@@ -20,13 +21,18 @@ export default function NavContainer() {
     return(
         <NavigationContainer>
             <Tab.Navigator
-                initialRouteName={homeName}
+                initialRouteName={mapName}
                 screenOptions={({route}) => ({
+                    headerStyle: {
+                        borderBottomWidth: 3,
+                        borderBottomColor: '#FF3B00',
+                    },
+                    
                     tabBarIcon: ({focused, color, size}) => {
                         let iconName;
                         let rn = route.name;
 
-                        if (rn === homeName) {
+                        if (rn === mapName) {
                             iconName = focused ? 'location' : 'location-outline';
                         } else if (rn === reportName) {
                             iconName = focused ? 'warning' : 'warning-outline';
@@ -34,8 +40,8 @@ export default function NavContainer() {
                             iconName = focused ? 'person' : 'person-outline';
                         }
 
-                        return <Ionicons name={iconName} size={size} color={color} />;
-                    },
+                    return <Ionicons name={iconName} size={size} color={color} />;
+                },
                 tabBarActiveTintColor: '#FF3B00',
                 tabBarInactiveTintColor: '#666666',
                 tabBarLabelStyle: { paddingBottom: 10, fontSize: 10 },
@@ -43,7 +49,7 @@ export default function NavContainer() {
                 })}>
 
                 <Tab.Screen name={reportName} component={ReportScreen} options={{ tabBarLabel: 'Report' }} />
-                <Tab.Screen name={homeName} component={HomeScreen}options={{ tabBarLabel: 'Navigate' }} />
+                <Tab.Screen name={mapName} component={MapScreen} options={{ tabBarLabel: 'Navigate' }} />
                 <Tab.Screen name={profileName} component={ProfileScreen} />
             </Tab.Navigator>
         </NavigationContainer>
