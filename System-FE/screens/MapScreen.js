@@ -1,12 +1,15 @@
 import * as React from 'react';
-import { View } from 'react-native';
+import { View, StyleSheet, Dimensions } from 'react-native';
 import MapView from 'react-native-maps';
+import MapSearchSheet from '../sheets/MapSearchSheet';
 
-export default function MapScreen({navigation}) {
+const { height } = Dimensions.get('window');
+
+export default function MapScreen() {
     return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+        <View style={styles.container}>
             <MapView
-                style={{ width: '100%', height: '100%' }}
+                style={styles.map}
                 initialRegion={{
                     latitude: 32.8998,
                     longitude: -97.0403,
@@ -14,7 +17,20 @@ export default function MapScreen({navigation}) {
                     longitudeDelta: 0.01,
                 }}
             />
-        </View>
 
+            <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+                <MapSearchSheet />
+            </View>
+        </View>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: 'white',
+    },
+    map: {
+        ...StyleSheet.absoluteFillObject,
+    },
+});
