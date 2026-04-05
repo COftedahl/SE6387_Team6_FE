@@ -35,51 +35,89 @@
 //     },
 // });
 
-import { View, StyleSheet, ActivityIndicator, Text } from 'react-native';
-import MapView, { UrlTile, Marker, Polyline } from 'react-native-maps';
+import { View, StyleSheet, ActivityIndicator, Text, Button } from 'react-native';
+import MapView, {PROVIDER_GOOGLE, UrlTile, Marker, Polyline } from 'react-native-maps';
 import MapSearchSheet from '../sheets/MapSearchSheet';
 import useLocation from '../hooks/useLocation';
+import useNavigation from '../hooks/useNavigation';
 
 export default function MapScreen() {
-  const { location, error, loading } = useLocation();
+//   const { location, error, loading } = useLocation();
 
-  if (loading) return (
-    <View style={styles.centered}>
-      <ActivityIndicator size="large" color="#FF3B00" />
-      <Text>Getting your location...</Text>
-    </View>
-  );
+//   if (loading) return (
+//     <View style={styles.centered}>
+//       <ActivityIndicator size="large" color="#FF3B00" />
+//       <Text>Getting your location...</Text>
+//     </View>
+//   );
 
-  if (error) return (
-    <View style={styles.centered}>
-      <Text>{error}</Text>
-    </View>
-  );
+//   if (error) return (
+//     <View style={styles.centered}>
+//       <Text>{error}</Text>
+//     </View>
+//   );
+
+// latitude: location?.latitude || 32.8998,
+//             longitude: location?.longitude || -97.0403,
+
+
+// navigation stuff
+
+  const { route, connected, navigate, cancelNavigation } = useNavigation();
+
+  // Test navigation on mount (remove this once UI triggers it)
+  const source = { latitude: 32.897257, longitude: -97.0419 };
+  const target = { latitude: 32.895, longitude: -97.0419 };
+
+
 
   return (
     <View style={styles.container}>
       <MapView
         style={styles.map}
-        initialRegion={{
-          latitude: location.latitude,
-          longitude: location.longitude,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        }}
-        showsUserLocation={true}
-      >
-        {/* OSM Tiles - shows real airport layout */}
-        <UrlTile
-          urlTemplate="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-          maximumZ={19}
-          flipY={false}
-        />
-      </MapView>
+      provider={PROVIDER_GOOGLE}
+        mapType="none"
+      initialRegion={{
+        latitude: 32.897257,
+        longitude: -97.0419,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      }}
+    >
+      <UrlTile
+        urlTemplate="http://10.0.2.2:5000/nav/map/{z}/{x}/{y}"
+        maximumZ={19}
+        minimumZ={10}
+      />
 
-      <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-        <MapSearchSheet />
-      </View>
+
+      <Marker
+        coordinate={source}
+        title="Start"
+      />
+
+      {/* Draw route if available */}
+        {route.length > 0 && (
+          <>
+            <Polyline
+              coordinates={route}
+              strokeColor="#FF3B00"
+              strokeWidth={4}
+            />
+            <Marker
+              coordinate={route[route.length - 1]}
+              title="Destination"
+              pinColor="green"
+            />
+          </>
+        )}
+
+    </MapView>
+
+    <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+        <MapSearchSheet navigate={navigate} cancelNavigation={cancelNavigation}/>
     </View>
+  </View>
   );
 }
 
