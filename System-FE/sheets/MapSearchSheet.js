@@ -3,6 +3,7 @@ import CategoriesView from './views/CategoriesView';
 import AmenitiesListView from './views/AmenitiesListView';
 import AmenityDetailView from './views/AmenityDetailView';
 import FiltersView from './views/FiltersView';
+import { buildFiltersAndSort } from '../utils/filterHelpers';
 
 import React, { useMemo, useRef, useState } from "react";
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
@@ -17,6 +18,13 @@ export default function MapSearchSheet({ navigate, cancelNavigation }) {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedAmenity, setSelectedAmenity] = useState(null);
 
+  // filters live here so they persist across view changes
+  const [filters, setFilters] = useState({
+    sort: "Best Route",   // always preset
+    restroom: null,       // no preset
+    accessible: null,     // no preset
+  });
+
   const goTo = (viewName, snapIndex = 1) => {
     setView(viewName);
     sheetRef.current?.snapToIndex(snapIndex);
@@ -24,13 +32,13 @@ export default function MapSearchSheet({ navigate, cancelNavigation }) {
 
   const handleStart = (amenity) => {
     const source = { latitude: 32.897257, longitude: -97.0419 };
-    // const target = { 
-    //   latitude: parseFloat(amenity.location.y), 
-    //   longitude: parseFloat(amenity.location.x) 
-    // };
-    const target = { latitude: 32.895, longitude: -97.0419 };
+    const target = { 
+      latitude: parseFloat(amenity.location.y), 
+      longitude: parseFloat(amenity.location.x) 
+    };
 
     navigate(source, target);
+    goTo("categories", 0);
   };
 
   const handleCancel = () => {
@@ -62,11 +70,14 @@ export default function MapSearchSheet({ navigate, cancelNavigation }) {
         {view === "amenities" && (
           <AmenitiesListView
             category={selectedCategory}
+            filters={filters}          // make sure this line is there
             onBack={() => goTo("categories", 1)}
             onAmenityPress={(amenity) => {
               setSelectedAmenity(amenity);
               goTo("detail", 2);
             }}
+            onFilterPress={() => goTo("filters", 2)}
+            onSearchFocus={() => sheetRef.current?.snapToIndex(2)}
           />
         )}
         {view === "detail" && (
@@ -78,7 +89,11 @@ export default function MapSearchSheet({ navigate, cancelNavigation }) {
           />
         )}
         {view === "filters" && (
-          <FiltersView onBack={() => goTo("categories", 1)} />
+          <FiltersView
+            filters={filters}
+            onFiltersChange={setFilters}
+            onBack={() => goTo("amenities", 1)}
+          />
         )}
       </BottomSheetView>
     </BottomSheet>

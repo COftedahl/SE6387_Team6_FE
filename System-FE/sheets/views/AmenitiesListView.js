@@ -1,25 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { getAmenitiesOfType } from '../../api/amenitiesApi';
+import SearchBar from '../../components/SearchBar';
+import { getSuggestedAmenities } from '../../api/amenitiesApi';
+import { buildFiltersAndSort } from '../../utils/filterHelpers';
 
-export default function AmenitiesListView({ category, onBack, onAmenityPress }) {
+export default function AmenitiesListView({ category, filters, onBack, onAmenityPress, onFilterPress, onSearchFocus }) {
+
   const [amenities, setAmenities] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchAmenities = async () => {
       setLoading(true);
-      const data = await getAmenitiesOfType({
-        amenityType: category.amenityType,
+      const { filterList, sortMethod } = buildFiltersAndSort(filters, category.amenityType);
+      const data = await getAmenitiesSuggested({
         x: "-97.0419",
         y: "32.897257",
+        filters: filterList,
+        sortMethod,
       });
+      console.log({x: "-97.0419", y: "32.897257", filters: filterList, sortMethod});
       setAmenities(data || []);
       setLoading(false);
     };
-    fetch();
-  }, [category]);
+    fetchAmenities();
+  }, [category, filters]); // refetches when filters change
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -37,6 +43,10 @@ export default function AmenitiesListView({ category, onBack, onAmenityPress }) 
           <Text style={styles.backText}>Back</Text>
         </TouchableOpacity>
         <Text style={styles.title}>{category?.name}</Text>
+      </View>
+
+      <View style={styles.searchWrapper}>
+        <SearchBar onFocus={onSearchFocus} onFilterPress={onFilterPress} />
       </View>
 
       {loading ? (
@@ -82,6 +92,7 @@ const styles = StyleSheet.create({
   backButton: { flexDirection: 'row', alignItems: 'center' },
   backText: { color: '#FF3B00', fontSize: 16, marginLeft: 2 },
   title: { fontSize: 17, fontWeight: '600', color: '#333', marginLeft: 12 },
+  searchWrapper: { paddingHorizontal: 16, paddingVertical: 10 },
   item: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 15, borderBottomWidth: 1, borderBottomColor: '#F0F0F0', paddingHorizontal: 16 },
   amenityInfo: { flex: 1, marginRight: 12 },
   subtext: { fontSize: 12, color: '#999', marginTop: 2 },

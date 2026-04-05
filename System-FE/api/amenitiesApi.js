@@ -29,12 +29,19 @@ export const getAmenitiesDetails = async (body) => {
 };
 
 export const getAmenitiesSuggested = async (body) => {
-  const res = await fetch(`${BASE_URL}/amenities/suggested`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${BASE_URL}/amenities/suggested`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    console.log('getAmenitiesSuggested status:', res.status);
+    return data;
+  } catch (err) {
+    console.log('getAmenitiesSuggested error:', err);
+    return null;
+  }
 };
 
 export const getAmenitiesFilter = async (body) => {

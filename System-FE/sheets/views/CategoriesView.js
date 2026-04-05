@@ -22,9 +22,9 @@ export default function CategoriesView({ currentIndex, onCategoryPress, onFilter
 
   return (
     <>
-      <View style={styles.searchWrapper}>
+      {/* <View style={styles.searchWrapper}>
         <SearchBar onFocus={onSearchFocus} onFilterPress={onFilterPress} />
-      </View>
+      </View> */}
       {currentIndex > 0 && (
         <FlatList
           data={CATEGORIES}

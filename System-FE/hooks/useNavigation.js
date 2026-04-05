@@ -1,15 +1,20 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import WS_MESSAGE_TYPE from '../constants/WSMessageType';
+
+const WS_URL = 'ws://10.0.2.2:5000/nav';
 
 const useNavigation = () => {
   const [navID, setNavID] = useState(null);
-  const [route, setRoute] = useState([]); // array of {x, y} ILocation
+  const [route, setRoute] = useState([]);
   const [connected, setConnected] = useState(false);
   const ws = useRef(null);
+  const pendingNavigation = useRef(null); // stores navigate call if ws is reconnecting
 
-  useEffect(() => {
-    // Connect to WebSocket
-    ws.current = new WebSocket('ws://10.0.2.2:5000/nav');
+  const connect = useCallback(() => {
+    // don't reconnect if already open
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) return;
+
+    ws.current = new WebSocket(WS_URL);
 
     ws.current.onopen = () => {
       console.log('WebSocket connected');
@@ -18,18 +23,27 @@ const useNavigation = () => {
 
     ws.current.onmessage = (event) => {
       const message = JSON.parse(event.data);
-      console.log('WS message received:', message);
 
       switch (message.messageType) {
         case WS_MESSAGE_TYPE.SEND_NAV_ID:
-          // Server sends navID on connect
           setNavID(message.body);
+          // if there was a pending navigation waiting for reconnect, fire it now
+          if (pendingNavigation.current) {
+            const { source, target, useAccessibleRouting } = pendingNavigation.current;
+            ws.current.send(JSON.stringify({
+              messageType: WS_MESSAGE_TYPE.REQUEST_NAVIGATE,
+              body: {
+                source: { x: String(source.longitude), y: String(source.latitude) },
+                target: { x: String(target.longitude), y: String(target.latitude) },
+                useAccessibleRouting,
+              }
+            }));
+            pendingNavigation.current = null;
+          }
           break;
 
         case WS_MESSAGE_TYPE.SEND_PATH:
-          // Server sends route after REQUEST_NAVIGATE
           const path = message.body;
-          // Convert ILocation {x, y} to react-native-maps {latitude, longitude}
           const coords = path.route.map(loc => ({
             latitude: parseFloat(loc.y),
             longitude: parseFloat(loc.x),
@@ -49,17 +63,23 @@ const useNavigation = () => {
     ws.current.onclose = () => {
       console.log('WebSocket disconnected');
       setConnected(false);
-    };
-
-    // Cleanup on unmount
-    return () => {
-      if (ws.current) ws.current.close();
+      setNavID(null);
     };
   }, []);
 
+  useEffect(() => {
+    connect();
+    return () => {
+      if (ws.current) ws.current.close();
+    };
+  }, [connect]);
+
   const navigate = (source, target, useAccessibleRouting = false) => {
-    if (!ws.current || !navID) {
-      console.log('WebSocket not ready or navID missing');
+    // if disconnected, store the request and reconnect
+    if (!ws.current || ws.current.readyState !== WebSocket.OPEN || !navID) {
+      console.log('WebSocket not ready, reconnecting...');
+      pendingNavigation.current = { source, target, useAccessibleRouting };
+      connect();
       return;
     }
 
@@ -74,12 +94,16 @@ const useNavigation = () => {
   };
 
   const cancelNavigation = () => {
-    if (!ws.current || !navID) return;
-    ws.current.send(JSON.stringify({
-      messageType: WS_MESSAGE_TYPE.CANCEL_NAVIGATION,
-      body: navID,
-    }));
+    if (ws.current && navID) {
+      ws.current.send(JSON.stringify({
+        messageType: WS_MESSAGE_TYPE.CANCEL_NAVIGATION,
+        body: navID,
+      }));
+      ws.current.close();
+    }
     setRoute([]);
+    setNavID(null);
+    setConnected(false);
   };
 
   return { navID, route, connected, navigate, cancelNavigation };
