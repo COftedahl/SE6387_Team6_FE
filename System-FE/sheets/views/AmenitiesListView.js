@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import SearchBar from '../../components/SearchBar';
-import { getSuggestedAmenities } from '../../api/amenitiesApi';
+import { getAmenitiesSuggested } from '../../api/amenitiesApi';
 import { buildFiltersAndSort } from '../../utils/filterHelpers';
 
 export default function AmenitiesListView({ category, filters, onBack, onAmenityPress, onFilterPress, onSearchFocus }) {
@@ -20,7 +20,6 @@ export default function AmenitiesListView({ category, filters, onBack, onAmenity
         filters: filterList,
         sortMethod,
       });
-      console.log({x: "-97.0419", y: "32.897257", filters: filterList, sortMethod});
       setAmenities(data || []);
       setLoading(false);
     };
@@ -66,8 +65,7 @@ export default function AmenitiesListView({ category, filters, onBack, onAmenity
               <View style={styles.amenityInfo}>
                 <Text style={styles.itemText}>Room {item.room}</Text>
                 <Text style={styles.subtext}>
-                  {item.accessibilityClass} · {item.distanceToAmenity.toFixed(0)}m away
-                </Text>
+                  {item.accessibilityClass} · {item.amenityInformation ? `${item.amenityInformation} · ` : ''}{item.distanceToAmenity.toFixed(0)}m away                </Text>
                 <Text style={styles.subtext}>
                   {item.currentAvailableSlots}/{item.capacity} slots available
                 </Text>

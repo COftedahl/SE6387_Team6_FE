@@ -26,6 +26,13 @@ export default function MapSearchSheet({ navigate, cancelNavigation }) {
   });
 
   const goTo = (viewName, snapIndex = 1) => {
+    if (viewName === "categories") {
+      setFilters({
+        sort: "Best Route",
+        restroom: null,
+        accessible: null,
+      });
+    }
     setView(viewName);
     sheetRef.current?.snapToIndex(snapIndex);
   };
