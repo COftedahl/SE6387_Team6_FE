@@ -88,6 +88,7 @@ export default function MapScreen() {
         urlTemplate="http://10.0.2.2:5000/nav/map/{z}/{x}/{y}"
         maximumZ={19}
         minimumZ={10}
+        zIndex={1}
       />
 
 
@@ -103,11 +104,13 @@ export default function MapScreen() {
               coordinates={route}
               strokeColor="#FF3B00"
               strokeWidth={4}
+              zIndex={10}
             />
             <Marker
               coordinate={route[route.length - 1]}
               title="Destination"
               pinColor="green"
+              zIndex={11}
             />
           </>
         )}
