@@ -11,7 +11,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator }
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { Ionicons } from '@expo/vector-icons';
 
-export default function MapSearchSheet({ navigate, cancelNavigation, instructions }) {
+export default function MapSearchSheet({ navigate, cancelNavigation, instructions, onAmenitiesChange }) {
   const sheetRef = useRef(null);
   const snapPoints = useMemo(() => [100, '50%', '90%'], []);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -33,6 +33,7 @@ export default function MapSearchSheet({ navigate, cancelNavigation, instruction
         restroom: null,
         accessible: null,
       });
+      onAmenitiesChange([]); // clear markers when leaving amenities
     }
     setView(viewName);
     sheetRef.current?.snapToIndex(snapIndex);
@@ -86,6 +87,7 @@ export default function MapSearchSheet({ navigate, cancelNavigation, instruction
             }}
             onFilterPress={() => goTo("filters", 2)}
             onSearchFocus={() => sheetRef.current?.snapToIndex(2)}
+            onAmenitiesLoaded={onAmenitiesChange}
           />
         )}
         {view === "detail" && (

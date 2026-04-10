@@ -37,6 +37,7 @@
 
 import { View, StyleSheet, ActivityIndicator, Text, Button } from 'react-native';
 import MapView, {PROVIDER_GOOGLE, UrlTile, Marker, Polyline } from 'react-native-maps';
+import { useState } from 'react';
 import MapSearchSheet from '../sheets/MapSearchSheet';
 import useLocation from '../hooks/useLocation';
 import useNavigation from '../hooks/useNavigation';
@@ -64,6 +65,7 @@ export default function MapScreen() {
 // navigation stuff
 
   const { route, instructions, connected, navigate, cancelNavigation } = useNavigation();
+  const [amenities, setAmenities] = useState([]); // add this
 
   // Test navigation on mount (remove this once UI triggers it)
   const source = { latitude: 32.897257, longitude: -97.0419 };
@@ -90,6 +92,21 @@ export default function MapScreen() {
         minimumZ={10}
         zIndex={1}
       />
+
+      {/* Amenity markers */}
+        {amenities.map((amenity) => (
+          <Marker
+            key={amenity.id}
+            coordinate={{
+              latitude: parseFloat(amenity.location.y),
+              longitude: parseFloat(amenity.location.x),
+            }}
+            title={`Room ${amenity.room}`}
+            description={`${amenity.accessibilityClass} · ${amenity.status}`}
+            pinColor="#eec334ff"
+            zIndex={5}
+          />
+      ))}
 
 
       <Marker
@@ -118,7 +135,12 @@ export default function MapScreen() {
     </MapView>
 
     <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-        <MapSearchSheet navigate={navigate} cancelNavigation={cancelNavigation} instructions={instructions}/>
+        <MapSearchSheet
+          navigate={navigate}
+          cancelNavigation={cancelNavigation}
+          instructions={instructions}
+          onAmenitiesChange={setAmenities}  
+        />
     </View>
   </View>
   );

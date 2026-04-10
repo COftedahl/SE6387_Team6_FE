@@ -5,7 +5,7 @@ import SearchBar from '../../components/SearchBar';
 import { getAmenitiesSuggested } from '../../api/amenitiesApi';
 import { buildFiltersAndSort } from '../../utils/filterHelpers';
 
-export default function AmenitiesListView({ category, filters, onBack, onAmenityPress, onFilterPress, onSearchFocus }) {
+export default function AmenitiesListView({ category, filters, onBack, onAmenityPress, onFilterPress, onSearchFocus, onAmenitiesLoaded }) {
 
   const [amenities, setAmenities] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -20,7 +20,9 @@ export default function AmenitiesListView({ category, filters, onBack, onAmenity
         filters: filterList,
         sortMethod,
       });
-      setAmenities(data || []);
+      const result = data || [];
+      setAmenities(result);
+      onAmenitiesLoaded(result);
       setLoading(false);
     };
     fetchAmenities();
