@@ -18,12 +18,12 @@ export const buildFiltersAndSort = (filters, amenityType) => {
     });
   }
 
-  // accessibility — only add if set
-  if (filters.accessible === "Yes") {
-    filterList.push({ filterKey: "accessibilityClass", value: "ACCESSIBLE" });
-  } else if (filters.accessible === "No") {
-    filterList.push({ filterKey: "accessibilityClass", value: "INACCESSIBLE" });
-  }
+  // // accessibility — only add if set
+  // if (filters.accessible === "Yes") {
+  //   filterList.push({ filterKey: "accessibilityClass", value: "ACCESSIBLE" });
+  // } else if (filters.accessible === "No") {
+  //   filterList.push({ filterKey: "accessibilityClass", value: "INACCESSIBLE" });
+  // }
 
   // sort method — always present, defaults to BEST_ROUTE
   const sortMethod = sortMethodMap[filters.sort] || "BEST_ROUTE";

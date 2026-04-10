@@ -65,7 +65,8 @@ export default function AmenitiesListView({ category, filters, onBack, onAmenity
               <View style={styles.amenityInfo}>
                 <Text style={styles.itemText}>Room {item.room}</Text>
                 <Text style={styles.subtext}>
-                  {item.accessibilityClass} · {item.amenityInformation ? `${item.amenityInformation} · ` : ''}{item.distanceToAmenity.toFixed(0)}m away                </Text>
+                  {/* {item.accessibilityClass} · {item.amenityInformation ? `${item.amenityInformation} · ` : ''}{item.distanceToAmenity.toFixed(0)}m away                </Text> */}
+                  {item.amenityInformation ? `${item.amenityInformation} · ` : ''}{item.distanceToAmenity.toFixed(0)}m away                </Text>
                 <Text style={styles.subtext}>
                   {item.currentAvailableSlots}/{item.capacity} slots available
                 </Text>

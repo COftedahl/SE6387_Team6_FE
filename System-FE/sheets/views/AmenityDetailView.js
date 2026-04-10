@@ -7,7 +7,8 @@ export default function AmenityDetailView({ amenity, onBack, onStart, onCancel }
 
   const isAccessible = amenity.accessibilityClass === 'ACCESSIBLE';
   const waitingMinutes = Math.ceil(amenity.durationToAmenity / 60);
-  const distanceMiles = (amenity.distanceToAmenity * 0.000621371).toFixed(1);
+  // const distanceMiles = (amenity.distanceToAmenity * 0.000621371).toFixed(1);
+  const distanceMiles = (amenity.distanceToAmenity).toFixed(1);
 
   return (
     <View style={styles.container}>
@@ -40,7 +41,7 @@ export default function AmenityDetailView({ amenity, onBack, onStart, onCancel }
           Est. waiting time: {waitingMinutes} minutes
         </Text>
         <Text style={styles.infoText}>
-          Distance: {distanceMiles} miles
+          Distance: {distanceMiles} meters
         </Text>
         <Text style={styles.infoText}>
           Status: <Text style={{ color: amenity.status === 'OPEN' ? '#34C759' : '#FF3B00' }}>

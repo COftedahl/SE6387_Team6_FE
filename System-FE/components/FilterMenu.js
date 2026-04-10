@@ -40,13 +40,8 @@ export default function FilterMenu({ onBack, filters, onFiltersChange }) {
       />
       <FilterSection
         title="Preferred Restroom Type:"
-        options={["Male", "Female", "Family"]}
+        options={["Male", "Female", "Accessible"]}
         stateKey="restroom"
-      />
-      <FilterSection
-        title="Accessible Route:"
-        options={["No", "Yes"]}
-        stateKey="accessible"
       />
       <Text style={styles.footerNote}>
         If no filters are selected, the default settings are to provide the best accessible route.

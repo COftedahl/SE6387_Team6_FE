@@ -3,6 +3,7 @@ import CategoriesView from './views/CategoriesView';
 import AmenitiesListView from './views/AmenitiesListView';
 import AmenityDetailView from './views/AmenityDetailView';
 import FiltersView from './views/FiltersView';
+import NavigationInstructionsView from './views/NavigationInstructionsView';
 import { buildFiltersAndSort } from '../utils/filterHelpers';
 
 import React, { useMemo, useRef, useState } from "react";
@@ -10,7 +11,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator }
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { Ionicons } from '@expo/vector-icons';
 
-export default function MapSearchSheet({ navigate, cancelNavigation }) {
+export default function MapSearchSheet({ navigate, cancelNavigation, instructions }) {
   const sheetRef = useRef(null);
   const snapPoints = useMemo(() => [100, '50%', '90%'], []);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -45,7 +46,7 @@ export default function MapSearchSheet({ navigate, cancelNavigation }) {
     };
 
     navigate(source, target);
-    goTo("categories", 0);
+    goTo("instructions", 0);
   };
 
   const handleCancel = () => {
@@ -100,6 +101,12 @@ export default function MapSearchSheet({ navigate, cancelNavigation }) {
             filters={filters}
             onFiltersChange={setFilters}
             onBack={() => goTo("amenities", 1)}
+          />
+        )}
+        {view === "instructions" && (
+          <NavigationInstructionsView
+            instructions={instructions}
+            onCancel={handleCancel}
           />
         )}
       </BottomSheetView>

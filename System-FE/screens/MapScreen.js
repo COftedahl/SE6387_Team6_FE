@@ -63,7 +63,7 @@ export default function MapScreen() {
 
 // navigation stuff
 
-  const { route, connected, navigate, cancelNavigation } = useNavigation();
+  const { route, instructions, connected, navigate, cancelNavigation } = useNavigation();
 
   // Test navigation on mount (remove this once UI triggers it)
   const source = { latitude: 32.897257, longitude: -97.0419 };
@@ -115,7 +115,7 @@ export default function MapScreen() {
     </MapView>
 
     <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-        <MapSearchSheet navigate={navigate} cancelNavigation={cancelNavigation}/>
+        <MapSearchSheet navigate={navigate} cancelNavigation={cancelNavigation} instructions={instructions}/>
     </View>
   </View>
   );

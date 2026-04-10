@@ -6,6 +6,7 @@ const WS_URL = 'ws://10.0.2.2:5000/nav';
 const useNavigation = () => {
   const [navID, setNavID] = useState(null);
   const [route, setRoute] = useState([]);
+  const [instructions, setInstructions] = useState([]); // add this
   const [connected, setConnected] = useState(false);
   const ws = useRef(null);
   const pendingNavigation = useRef(null); // stores navigate call if ws is reconnecting
@@ -44,11 +45,13 @@ const useNavigation = () => {
 
         case WS_MESSAGE_TYPE.SEND_PATH:
           const path = message.body;
+          console.log('Received path:', path);
           const coords = path.route.map(loc => ({
             latitude: parseFloat(loc.y),
             longitude: parseFloat(loc.x),
           }));
           setRoute(coords);
+          setInstructions(path.instructions || []); // add this
           break;
 
         default:
@@ -106,7 +109,7 @@ const useNavigation = () => {
     setConnected(false);
   };
 
-  return { navID, route, connected, navigate, cancelNavigation };
+  return { navID, route, instructions, connected, navigate, cancelNavigation };
 };
 
 export default useNavigation;
