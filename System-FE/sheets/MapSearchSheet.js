@@ -6,18 +6,31 @@ import FiltersView from './views/FiltersView';
 import NavigationInstructionsView from './views/NavigationInstructionsView';
 import { buildFiltersAndSort } from '../utils/filterHelpers';
 
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState, forwardRef, useImperativeHandle } from "react";
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from "react-native";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { Ionicons } from '@expo/vector-icons';
 
-export default function MapSearchSheet({ navigate, cancelNavigation, instructions, onAmenitiesChange }) {
+const MapSearchSheet = forwardRef(function MapSearchSheet(
+  { navigate, cancelNavigation, instructions, onAmenitiesChange, onAmenitySelect },
+  ref
+) {
   const sheetRef = useRef(null);
   const snapPoints = useMemo(() => [100, '50%', '90%'], []);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [view, setView] = useState("categories");
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedAmenity, setSelectedAmenity] = useState(null);
+
+  // expose selectAmenity to parent (MapScreen)
+  useImperativeHandle(ref, () => ({
+    selectAmenity: (amenity) => {
+      setSelectedAmenity(amenity);
+      onAmenitiesChange([]);
+      onAmenitySelect(amenity); // show green marker
+      goTo("detail", 2);
+    }
+  }));
 
   // filters live here so they persist across view changes
   const [filters, setFilters] = useState({
@@ -34,6 +47,7 @@ export default function MapSearchSheet({ navigate, cancelNavigation, instruction
         accessible: null,
       });
       onAmenitiesChange([]); // clear markers when leaving amenities
+      onAmenitySelect(null); // clear green marker
     }
     setView(viewName);
     sheetRef.current?.snapToIndex(snapIndex);
@@ -52,6 +66,7 @@ export default function MapSearchSheet({ navigate, cancelNavigation, instruction
 
   const handleCancel = () => {
     cancelNavigation();
+    onAmenitySelect(null);
     goTo("categories", 0);
   };
 
@@ -83,6 +98,8 @@ export default function MapSearchSheet({ navigate, cancelNavigation, instruction
             onBack={() => goTo("categories", 1)}
             onAmenityPress={(amenity) => {
               setSelectedAmenity(amenity);
+              onAmenitiesChange([]); // clear markers
+              onAmenitySelect(amenity);
               goTo("detail", 2);
             }}
             onFilterPress={() => goTo("filters", 2)}
@@ -114,7 +131,7 @@ export default function MapSearchSheet({ navigate, cancelNavigation, instruction
       </BottomSheetView>
     </BottomSheet>
   );
-}
+});
 
 const styles = StyleSheet.create({
   sheetBackground: { 
@@ -123,3 +140,5 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 20 
   },
 });
+
+export default MapSearchSheet;

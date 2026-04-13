@@ -37,7 +37,7 @@
 
 import { View, StyleSheet, ActivityIndicator, Text, Button } from 'react-native';
 import MapView, {PROVIDER_GOOGLE, UrlTile, Marker, Polyline } from 'react-native-maps';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import MapSearchSheet from '../sheets/MapSearchSheet';
 import useLocation from '../hooks/useLocation';
 import useNavigation from '../hooks/useNavigation';
@@ -66,6 +66,8 @@ export default function MapScreen() {
 
   const { route, instructions, connected, navigate, cancelNavigation } = useNavigation();
   const [amenities, setAmenities] = useState([]); // add this
+  const mapSheetRef = useRef(null); // ref to call sheet methods
+  const [selectedAmenity, setSelectedAmenity] = useState(null); // add this
 
   // Test navigation on mount (remove this once UI triggers it)
   const source = { latitude: 32.897257, longitude: -97.0419 };
@@ -102,11 +104,25 @@ export default function MapScreen() {
               longitude: parseFloat(amenity.location.x),
             }}
             title={`Room ${amenity.room}`}
-            description={`${amenity.accessibilityClass} · ${amenity.status}`}
+            description={`${amenity.status}`}
             pinColor="#eec334ff"
             zIndex={5}
+            onPress={() => mapSheetRef.current?.selectAmenity(amenity)}
           />
       ))}
+
+      {/* Destination marker — shows when amenity is selected */}
+      {selectedAmenity && (
+        <Marker
+          coordinate={{
+            latitude: parseFloat(selectedAmenity.location.y),
+            longitude: parseFloat(selectedAmenity.location.x),
+          }}
+          title={`Room ${selectedAmenity.room}`}
+          pinColor="green"
+          zIndex={11}
+        />
+      )}
 
 
       <Marker
@@ -114,32 +130,27 @@ export default function MapScreen() {
         title="Start"
       />
 
-      {/* Draw route if available */}
-        {route.length > 0 && (
-          <>
-            <Polyline
-              coordinates={route}
-              strokeColor="#FF3B00"
-              strokeWidth={4}
-              zIndex={10}
-            />
-            <Marker
-              coordinate={route[route.length - 1]}
-              title="Destination"
-              pinColor="green"
-              zIndex={11}
-            />
-          </>
-        )}
+
+      {/* Route polyline — shows when navigation starts */}
+      {route.length > 0 && (
+        <Polyline
+          coordinates={route}
+          strokeColor="#FF3B00"
+          strokeWidth={4}
+          zIndex={10}
+        />
+      )}
 
     </MapView>
 
     <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
         <MapSearchSheet
+          ref={mapSheetRef}
           navigate={navigate}
           cancelNavigation={cancelNavigation}
           instructions={instructions}
-          onAmenitiesChange={setAmenities}  
+          onAmenitiesChange={setAmenities}
+          onAmenitySelect={setSelectedAmenity}
         />
     </View>
   </View>
