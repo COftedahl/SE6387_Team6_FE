@@ -32,7 +32,7 @@ const App: React.FC<AppProps> = (props: AppProps) => {
     }
   }
 
-  const handleSetAmenities: React.Dispatch<React.SetStateAction<IAmenityDetails[]>> = (value: IAmenityDetails[] | ((oldVal: IAmenityDetails[]) => IAmenityDetails[])) => {
+  const handleSetAmenities: React.Dispatch<React.SetStateAction<IAmenityDetails[]>> = async (value: IAmenityDetails[] | ((oldVal: IAmenityDetails[]) => IAmenityDetails[])) => {
     let newVal: IAmenityDetails[] = [];
     if (typeof value === 'function') {
       newVal = (value(amenities));
@@ -42,7 +42,7 @@ const App: React.FC<AppProps> = (props: AppProps) => {
     }
     setAmenities(newVal);
 
-    fetch(AMENITIES_BACKEND_URL + SET_DETAILS_ENDPOINT, {
+    const result = await fetch(AMENITIES_BACKEND_URL + SET_DETAILS_ENDPOINT, {
       method: "POST", 
       headers: {
         "Content-Type": "application/json", 
@@ -51,6 +51,8 @@ const App: React.FC<AppProps> = (props: AppProps) => {
         data: newVal, 
       })
     })
+    console.log(result);
+    console.log(await result.text());
   }
 
   const handleAddNewAmenity = async (newAmenity: IAmenityDetails) => {

@@ -4,7 +4,7 @@ import INFRASTRUCTURE_STATUS from "../Types/InfrastructureStatus";
 
 const BLANK_HALLWAY: IHallway = {
   id: "", 
-  name: "", 
+  // name: "", 
   status: INFRASTRUCTURE_STATUS.OPEN, 
   crowdLevel: CROWD_LEVEL.EMPTY, 
   start: {x: "", y: ""},

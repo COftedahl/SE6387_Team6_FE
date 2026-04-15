@@ -104,7 +104,7 @@ const HallwayTable: React.FC<HallwayTableProps> = (props: HallwayTableProps) => 
 
   const allDisplayFields: {property: string[], display: string}[] = [
     {property: ["id"], display: "ID"}, 
-    {property: ["name"], display: "Name"}, 
+    // {property: ["name"], display: "Name"}, 
     {property: ["start", "x"], display: "Start Longitude"}, 
     {property: ["start", "y"], display: "Start Latitude"}, 
     {property: ["end", "x"], display: "End Longitude"}, 
@@ -143,7 +143,7 @@ const HallwayTable: React.FC<HallwayTableProps> = (props: HallwayTableProps) => 
               <tr key={index} className="HallwayTable_Body_Row">
                 <td className="HallwayTable_Body_Cell">{index}</td>
                 <td className="HallwayTable_Body_Cell">{hallway.id}</td>
-                <td className="HallwayTable_Body_Cell">{hallway.name}</td>
+                {/* <td className="HallwayTable_Body_Cell">{hallway.name}</td> */}
                 <td className="HallwayTable_Body_Cell">{hallway.start.x}</td>
                 <td className="HallwayTable_Body_Cell">{hallway.start.y}</td>
                 <td className="HallwayTable_Body_Cell">{hallway.end.x}</td>

@@ -33,7 +33,7 @@ const App: React.FC<AppProps> = (props: AppProps) => {
     }
   }
 
-  const handleSetCrowd = (id: string, newVal: string | ((oldVal: string) => string)) => {
+  const handleSetCrowd = async (id: string, newVal: string | ((oldVal: string) => string)) => {
   // const handleSetCrowd: React.Dispatch<React.SetStateAction<{id: string, value: string}>> = (value: {id: string, value: string} | ((oldVal: {id: string, value: string}) => {id: string, value: string})) => {
     
     const updatingHallwayIndex: number = hallways.findIndex((hallway: IHallway) => hallway.id === id)
@@ -43,7 +43,7 @@ const App: React.FC<AppProps> = (props: AppProps) => {
     hallways[updatingHallwayIndex].crowdLevel = newVal as CROWD_LEVEL;
     setHallways(() => hallways);
 
-    fetch(INFRASTRUCTURE_BACKEND_URL + SET_CROWD_ENDPOINT, {
+    const result = await fetch(INFRASTRUCTURE_BACKEND_URL + SET_CROWD_ENDPOINT, {
       method: "POST", 
       headers: {
         "Content-Type": "application/json", 
@@ -53,9 +53,11 @@ const App: React.FC<AppProps> = (props: AppProps) => {
         crowdLevel: newVal,
       })
     })
+    console.log(result);
+    console.log(await result.text());
   }
 
-  const handleSetStatus = (id: string, newVal: string | ((oldVal: string) => string)) => {
+  const handleSetStatus = async (id: string, newVal: string | ((oldVal: string) => string)) => {
   // const handleSetStatus: React.Dispatch<React.SetStateAction<{id: string, value: string}>> = (value: {id: string, value: string} | ((oldVal: {id: string, value: string}) => {id: string, value: string})) => {
     
     const updatingHallwayIndex: number = hallways.findIndex((hallway: IHallway) => hallway.id === id)
@@ -65,7 +67,7 @@ const App: React.FC<AppProps> = (props: AppProps) => {
     hallways[updatingHallwayIndex].status = newVal as INFRASTRUCTURE_STATUS;
     setHallways(() => hallways);
 
-    fetch(INFRASTRUCTURE_BACKEND_URL + SET_STATUS_ENDPOINT, {
+    const result = await fetch(INFRASTRUCTURE_BACKEND_URL + SET_STATUS_ENDPOINT, {
       method: "POST", 
       headers: {
         "Content-Type": "application/json", 
@@ -75,6 +77,8 @@ const App: React.FC<AppProps> = (props: AppProps) => {
         status: newVal,
       })
     })
+    console.log(result);
+    console.log(await result.text());
   }
 
   const handleSetOrdering = (newOrderingIndices: number[]) => {
