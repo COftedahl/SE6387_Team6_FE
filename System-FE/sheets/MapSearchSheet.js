@@ -36,7 +36,7 @@ const MapSearchSheet = forwardRef(function MapSearchSheet(
   const [filters, setFilters] = useState({
     sort: "Best Route",   // always preset
     restroom: null,       // no preset
-    accessible: null,     // no preset
+    useAccessibleRouting: false, // add this for navigation routing
   });
 
   const goTo = (viewName, snapIndex = 1) => {
@@ -44,7 +44,7 @@ const MapSearchSheet = forwardRef(function MapSearchSheet(
       setFilters({
         sort: "Best Route",
         restroom: null,
-        accessible: null,
+        useAccessibleRouting: false, // add this for navigation routing
       });
       onAmenitiesChange([]); // clear markers when leaving amenities
       onAmenitySelect(null); // clear green marker
@@ -59,7 +59,7 @@ const MapSearchSheet = forwardRef(function MapSearchSheet(
       longitude: parseFloat(amenity.location.x) 
     };
 
-    navigate(userPosition, target);
+    navigate(userPosition, target, filters.useAccessibleRouting);
     goTo("instructions", 0);
   };
 

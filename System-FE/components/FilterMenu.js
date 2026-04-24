@@ -43,6 +43,28 @@ export default function FilterMenu({ onBack, filters, onFiltersChange }) {
         options={["Male", "Female", "Accessible"]}
         stateKey="restroom"
       />
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Use Accessible Navigation Routes:</Text>
+        <TouchableOpacity
+          style={styles.checkboxOption}
+          onPress={() => onFiltersChange({ 
+            ...filters, 
+            useAccessibleRouting: !filters.useAccessibleRouting 
+          })}
+        >
+          <Ionicons
+            name={filters.useAccessibleRouting ? "checkbox" : "square-outline"}
+            size={22}
+            color={filters.useAccessibleRouting ? "#FF3B00" : "#666"}
+          />
+          <Text style={[
+            styles.optionText, 
+            filters.useAccessibleRouting && styles.selectedText
+          ]}>
+            Enable wheelchair-accessible navigation
+          </Text>
+        </TouchableOpacity>
+      </View>
       <Text style={styles.footerNote}>
         If no filters are selected, the default settings are to provide the best accessible route.
       </Text>
@@ -59,5 +81,10 @@ const styles = StyleSheet.create({
   radioOption: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   optionText: { marginLeft: 10, fontSize: 13, color: '#666' },
   selectedText: { color: '#333', fontWeight: '500' },
-  footerNote: { fontSize: 12, color: '#666666', textAlign: 'center', marginTop: 10, paddingBottom: 30 }
+  footerNote: { fontSize: 12, color: '#666666', textAlign: 'center', marginTop: 10, paddingBottom: 30 },
+    checkboxOption: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    paddingVertical: 6,
+  },
 });
