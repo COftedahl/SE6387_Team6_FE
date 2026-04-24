@@ -5,7 +5,7 @@ import SearchBar from '../../components/SearchBar';
 import { getAmenitiesSuggested } from '../../api/amenitiesApi';
 import { buildFiltersAndSort } from '../../utils/filterHelpers';
 
-export default function AmenitiesListView({ category, filters, onBack, onAmenityPress, onFilterPress, onSearchFocus, onAmenitiesLoaded }) {
+export default function AmenitiesListView({ category, filters, userPosition, onBack, onAmenityPress, onFilterPress, onSearchFocus, onAmenitiesLoaded }) {
 
   const [amenities, setAmenities] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -15,8 +15,8 @@ export default function AmenitiesListView({ category, filters, onBack, onAmenity
       setLoading(true);
       const { filterList, sortMethod } = buildFiltersAndSort(filters, category.amenityType);
       const data = await getAmenitiesSuggested({
-        x: "-97.0419",
-        y: "32.897257",
+        x: String(userPosition.longitude), // use real position
+        y: String(userPosition.latitude),
         filters: filterList,
         sortMethod,
       });
@@ -26,7 +26,7 @@ export default function AmenitiesListView({ category, filters, onBack, onAmenity
       setLoading(false);
     };
     fetchAmenities();
-  }, [category, filters]); // refetches when filters change
+  }, [category, filters, userPosition]); // refetches when filters change
 
   const getStatusColor = (status) => {
     switch (status) {

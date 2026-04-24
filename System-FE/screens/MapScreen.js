@@ -1,86 +1,49 @@
-// import * as React from 'react';
-// import { View, StyleSheet, Dimensions } from 'react-native';
-// import MapView from 'react-native-maps';
-// import MapSearchSheet from '../sheets/MapSearchSheet';
-
-// const { height } = Dimensions.get('window');
-
-// export default function MapScreen() {
-//     return (
-//         <View style={styles.container}>
-//             <MapView
-//                 style={styles.map}
-//                 initialRegion={{
-//                     latitude: 32.8998,
-//                     longitude: -97.0403,
-//                     latitudeDelta: 0.01,
-//                     longitudeDelta: 0.01,
-//                 }}
-//             />
-
-//             <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-//                 <MapSearchSheet />
-//             </View>
-//         </View>
-//     );
-// }
-
-// const styles = StyleSheet.create({
-//     container: {
-//         flex: 1,
-//         backgroundColor: 'white',
-//     },
-//     map: {
-//         ...StyleSheet.absoluteFillObject,
-//     },
-// });
-
 import { View, StyleSheet, ActivityIndicator, Text, Button } from 'react-native';
 import MapView, {PROVIDER_GOOGLE, UrlTile, Marker, Polyline } from 'react-native-maps';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import MapSearchSheet from '../sheets/MapSearchSheet';
 import useLocation from '../hooks/useLocation';
 import useNavigation from '../hooks/useNavigation';
+import useUserPosition from '../hooks/useUserPosition';
 
 export default function MapScreen() {
-//   const { location, error, loading } = useLocation();
 
-//   if (loading) return (
-//     <View style={styles.centered}>
-//       <ActivityIndicator size="large" color="#FF3B00" />
-//       <Text>Getting your location...</Text>
-//     </View>
-//   );
+  const { position } = useUserPosition(); 
 
-//   if (error) return (
-//     <View style={styles.centered}>
-//       <Text>{error}</Text>
-//     </View>
-//   );
-
-// latitude: location?.latitude || 32.8998,
-//             longitude: location?.longitude || -97.0403,
-
-
-// navigation stuff
-
+  // navigation stuff
   const { 
     route, 
     instructions, 
     connected, 
+    isNavigating,
     navigate, 
     cancelNavigation,
     rerouteOffer,
     acceptReroute,
     declineReroute,
+    updatePosition,
   } = useNavigation();
+
+
   const [amenities, setAmenities] = useState([]); // add this
   const mapSheetRef = useRef(null); // ref to call sheet methods
   const [selectedAmenity, setSelectedAmenity] = useState(null); // add this
 
-  // Test navigation on mount (remove this once UI triggers it)
-  const source = { latitude: 32.897257, longitude: -97.0419 };
-  const target = { latitude: 32.895, longitude: -97.0419 };
+  // // Test navigation on mount (remove this once UI triggers it)
+  // const source = { latitude: 32.897257, longitude: -97.0419 };
+  // const target = { latitude: 32.895, longitude: -97.0419 };
+
+
+  // Send position updates while navigating
+  useEffect(() => {
+    if (!isNavigating || !position) return;
+
+    const interval = setInterval(() => {
+      updatePosition(position);
+    }, 5000); // every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [isNavigating, position, updatePosition]);
 
 
 
@@ -91,8 +54,8 @@ export default function MapScreen() {
       provider={PROVIDER_GOOGLE}
         mapType="none"
       initialRegion={{
-        latitude: 32.897257,
-        longitude: -97.0419,
+        latitude: position.latitude,
+        longitude: position.longitude,
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
       }}
@@ -135,8 +98,8 @@ export default function MapScreen() {
 
 
       <Marker
-        coordinate={source}
-        title="Start"
+        coordinate={position}
+        title="You"
       />
 
 
@@ -155,6 +118,7 @@ export default function MapScreen() {
     <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
         <MapSearchSheet
           ref={mapSheetRef}
+          userPosition={position}
           navigate={navigate}
           cancelNavigation={cancelNavigation}
           rerouteOffer={rerouteOffer}

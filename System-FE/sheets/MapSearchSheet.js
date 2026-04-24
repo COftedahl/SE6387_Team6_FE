@@ -12,7 +12,7 @@ import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { Ionicons } from '@expo/vector-icons';
 
 const MapSearchSheet = forwardRef(function MapSearchSheet(
-  { navigate, cancelNavigation, rerouteOffer, acceptReroute, declineReroute, instructions, onAmenitiesChange, onAmenitySelect },
+  {userPosition, navigate, cancelNavigation, rerouteOffer, acceptReroute, declineReroute, instructions, onAmenitiesChange, onAmenitySelect },
   ref
 ) {
   const sheetRef = useRef(null);
@@ -54,13 +54,12 @@ const MapSearchSheet = forwardRef(function MapSearchSheet(
   };
 
   const handleStart = (amenity) => {
-    const source = { latitude: 32.897257, longitude: -97.0419 };
     const target = { 
       latitude: parseFloat(amenity.location.y), 
       longitude: parseFloat(amenity.location.x) 
     };
 
-    navigate(source, target);
+    navigate(userPosition, target);
     goTo("instructions", 0);
   };
 
@@ -94,7 +93,8 @@ const MapSearchSheet = forwardRef(function MapSearchSheet(
         {view === "amenities" && (
           <AmenitiesListView
             category={selectedCategory}
-            filters={filters}          // make sure this line is there
+            filters={filters}
+            userPosition={userPosition}
             onBack={() => goTo("categories", 1)}
             onAmenityPress={(amenity) => {
               setSelectedAmenity(amenity);
