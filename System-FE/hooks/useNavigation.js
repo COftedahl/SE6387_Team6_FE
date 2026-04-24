@@ -8,6 +8,7 @@ const useNavigation = () => {
   const [route, setRoute] = useState([]);
   const [instructions, setInstructions] = useState([]); // add this
   const [connected, setConnected] = useState(false);
+  const [rerouteOffer, setRerouteOffer] = useState(null); // { newRoute, reason }
   const ws = useRef(null);
   const pendingNavigation = useRef(null); // stores navigate call if ws is reconnecting
 
@@ -51,7 +52,15 @@ const useNavigation = () => {
             longitude: parseFloat(loc.x),
           }));
           setRoute(coords);
-          setInstructions(path.instructions || []); // add this
+          setInstructions(path.instructions || []);
+          break;
+
+        case WS_MESSAGE_TYPE.OFFER_REROUTE:
+          const offer = message.body;
+          setRerouteOffer({
+            newRoute: offer.newRoute,
+            reason: offer.rerouteReason,
+          });
           break;
 
         default:
@@ -109,7 +118,30 @@ const useNavigation = () => {
     setConnected(false);
   };
 
-  return { navID, route, instructions, connected, navigate, cancelNavigation };
+  const acceptReroute = () => {
+    if (!ws.current || !navID) return;
+    ws.current.send(JSON.stringify({
+      messageType: WS_MESSAGE_TYPE.ACCEPT_REROUTE,
+      body: navID,
+    }));
+    setRerouteOffer(null); // clear the offer
+  };
+
+  const declineReroute = () => {
+    setRerouteOffer(null); // just dismiss
+  };
+
+  return { 
+    navID, 
+    route, 
+    instructions, 
+    connected, 
+    navigate, 
+    cancelNavigation,
+    rerouteOffer,
+    acceptReroute,
+    declineReroute,
+  };
 };
 
 export default useNavigation;

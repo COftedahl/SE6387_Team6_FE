@@ -12,7 +12,7 @@ import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { Ionicons } from '@expo/vector-icons';
 
 const MapSearchSheet = forwardRef(function MapSearchSheet(
-  { navigate, cancelNavigation, instructions, onAmenitiesChange, onAmenitySelect },
+  { navigate, cancelNavigation, rerouteOffer, acceptReroute, declineReroute, instructions, onAmenitiesChange, onAmenitySelect },
   ref
 ) {
   const sheetRef = useRef(null);
@@ -125,6 +125,9 @@ const MapSearchSheet = forwardRef(function MapSearchSheet(
         {view === "instructions" && (
           <NavigationInstructionsView
             instructions={instructions}
+            rerouteOffer={rerouteOffer}
+            onAcceptReroute={acceptReroute}
+            onDeclineReroute={declineReroute}
             onCancel={handleCancel}
           />
         )}

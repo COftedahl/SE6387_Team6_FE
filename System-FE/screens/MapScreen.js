@@ -64,7 +64,16 @@ export default function MapScreen() {
 
 // navigation stuff
 
-  const { route, instructions, connected, navigate, cancelNavigation } = useNavigation();
+  const { 
+    route, 
+    instructions, 
+    connected, 
+    navigate, 
+    cancelNavigation,
+    rerouteOffer,
+    acceptReroute,
+    declineReroute,
+  } = useNavigation();
   const [amenities, setAmenities] = useState([]); // add this
   const mapSheetRef = useRef(null); // ref to call sheet methods
   const [selectedAmenity, setSelectedAmenity] = useState(null); // add this
@@ -148,6 +157,9 @@ export default function MapScreen() {
           ref={mapSheetRef}
           navigate={navigate}
           cancelNavigation={cancelNavigation}
+          rerouteOffer={rerouteOffer}
+          acceptReroute={acceptReroute}
+          declineReroute={declineReroute}
           instructions={instructions}
           onAmenitiesChange={setAmenities}
           onAmenitySelect={setSelectedAmenity}

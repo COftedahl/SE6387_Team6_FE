@@ -2,8 +2,23 @@ import React, { useState } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function NavigationInstructionsView({ instructions, onCancel }) {
+export default function NavigationInstructionsView({ 
+  instructions, 
+  rerouteOffer, 
+  onAcceptReroute, 
+  onDeclineReroute, 
+  onCancel 
+}) {
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  const getReasonText = (reason) => {
+    switch (reason) {
+      case 'LOCATION_CHANGED': return 'Your location has changed';
+      case 'INFRASTRUCTURE_CHANGED': return 'Route conditions have changed';
+      case 'AMENITIES_CHANGED': return 'Amenity availability has changed';
+      default: return 'A better route is available';
+    }
+  };
 
   if (!instructions || instructions.length === 0) {
     return (
@@ -36,6 +51,43 @@ export default function NavigationInstructionsView({ instructions, onCancel }) {
 
   return (
     <View style={styles.container}>
+
+      {/* reroute offer modal */}
+      {rerouteOffer && (
+        <Modal
+          transparent={true}
+          visible={true}
+          animationType="fade"
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContent}>
+              <Ionicons name="warning" size={40} color="#FF9500" />
+              <Text style={styles.modalTitle}>Reroute Available</Text>
+              <Text style={styles.modalMessage}>
+                {getReasonText(rerouteOffer.reason)}
+              </Text>
+              <Text style={styles.modalSubmessage}>
+                Would you like to take the new route?
+              </Text>
+              <View style={styles.modalButtons}>
+                <TouchableOpacity 
+                  style={styles.declineButton} 
+                  onPress={onDeclineReroute}
+                >
+                  <Text style={styles.declineText}>No, Keep Current</Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.acceptButton} 
+                  onPress={onAcceptReroute}
+                >
+                  <Text style={styles.acceptText}>Yes, Reroute</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
+
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Navigation</Text>
@@ -113,4 +165,68 @@ const styles = StyleSheet.create({
   arrivedText: { color: '#34C759', fontSize: 15, fontWeight: '600' },
   cancelButton: { paddingVertical: 14, borderRadius: 10, borderWidth: 1.5, borderColor: '#FF3B00', alignItems: 'center' },
   cancelText: { color: '#FF3B00', fontSize: 16, fontWeight: '600' },
+  modalOverlay: { 
+    flex: 1, 
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: { 
+    backgroundColor: 'white', 
+    borderRadius: 16, 
+    padding: 24, 
+    width: '100%',
+    maxWidth: 340,
+    alignItems: 'center',
+    gap: 12,
+  },
+  modalTitle: { 
+    fontSize: 20, 
+    fontWeight: '700', 
+    color: '#333',
+    marginTop: 8,
+  },
+  modalMessage: { 
+    fontSize: 15, 
+    color: '#666', 
+    textAlign: 'center',
+  },
+  modalSubmessage: { 
+    fontSize: 14, 
+    color: '#999', 
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  modalButtons: { 
+    flexDirection: 'row', 
+    gap: 12, 
+    width: '100%',
+    marginTop: 8,
+  },
+  declineButton: { 
+    flex: 1, 
+    paddingVertical: 12, 
+    borderRadius: 10, 
+    borderWidth: 1.5, 
+    borderColor: '#FF3B00', 
+    alignItems: 'center',
+  },
+  declineText: { 
+    color: '#FF3B00', 
+    fontSize: 15, 
+    fontWeight: '600',
+  },
+  acceptButton: { 
+    flex: 1, 
+    paddingVertical: 12, 
+    borderRadius: 10, 
+    backgroundColor: '#FF3B00', 
+    alignItems: 'center',
+  },
+  acceptText: { 
+    color: 'white', 
+    fontSize: 15, 
+    fontWeight: '600',
+  },
 });
