@@ -78,7 +78,8 @@ export default function NavigationInstructionsView({
                 </TouchableOpacity>
                 <TouchableOpacity 
                   style={styles.acceptButton} 
-                  onPress={onAcceptReroute}
+                  // onPress={onAcceptReroute}
+                  onPress={() => onAcceptReroute(rerouteOffer.targetAmenity)}
                 >
                   <Text style={styles.acceptText}>Yes, Reroute</Text>
                 </TouchableOpacity>

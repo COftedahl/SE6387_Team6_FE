@@ -126,7 +126,14 @@ const MapSearchSheet = forwardRef(function MapSearchSheet(
           <NavigationInstructionsView
             instructions={instructions}
             rerouteOffer={rerouteOffer}
-            onAcceptReroute={acceptReroute}
+            // onAcceptReroute={acceptReroute}
+            onAcceptReroute={(newAmenity) => {
+              console.log("prev amenity: ", selectedAmenity)
+              setSelectedAmenity(newAmenity)
+              onAmenitySelect(newAmenity)
+              console.log("new amenity: ", newAmenity)
+              acceptReroute()
+            }}
             onDeclineReroute={declineReroute}
             onCancel={handleCancel}
           />

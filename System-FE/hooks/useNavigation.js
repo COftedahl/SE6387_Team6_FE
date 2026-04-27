@@ -9,7 +9,7 @@ const useNavigation = () => {
   const [route, setRoute] = useState([]);
   const [instructions, setInstructions] = useState([]); // add this
   const [connected, setConnected] = useState(false);
-  const [rerouteOffer, setRerouteOffer] = useState(null); // { newRoute, reason }
+  const [rerouteOffer, setRerouteOffer] = useState(null); // { newRoute, reason, targetAmenity }
   const [isNavigating, setIsNavigating] = useState(false); // track if actively navigating
   const ws = useRef(null);
   const pendingNavigation = useRef(null); // stores navigate call if ws is reconnecting
@@ -64,6 +64,7 @@ const useNavigation = () => {
           setRerouteOffer({
             newRoute: offer.newRoute,
             reason: offer.rerouteReason,
+            targetAmenity: offer.targetAmenity
           });
           break;
 
