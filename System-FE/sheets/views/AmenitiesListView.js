@@ -9,6 +9,7 @@ export default function AmenitiesListView({ category, filters, userPosition, onB
 
   const [amenities, setAmenities] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(''); 
 
   useEffect(() => {
     const fetchAmenities = async () => {
@@ -36,6 +37,12 @@ export default function AmenitiesListView({ category, filters, userPosition, onB
     }
   };
 
+
+  // Filter amenities by search query
+  const filteredAmenities = amenities.filter(amenity => 
+    amenity.room.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <>
       <View style={styles.header}>
@@ -47,20 +54,27 @@ export default function AmenitiesListView({ category, filters, userPosition, onB
       </View>
 
       <View style={styles.searchWrapper}>
-        <SearchBar onFocus={onSearchFocus} onFilterPress={onFilterPress} />
+        <SearchBar 
+          value={searchQuery}
+          onChange={setSearchQuery}
+          onFocus={onSearchFocus} 
+          onFilterPress={onFilterPress} 
+        />
       </View>
 
       {loading ? (
         <View style={styles.centered}>
           <ActivityIndicator size="large" color="#FF3B00" />
         </View>
-      ) : amenities.length === 0 ? (
+      ) : filteredAmenities.length === 0 ? (
         <View style={styles.centered}>
-          <Text style={styles.emptyText}>No amenities found</Text>
+          <Text style={styles.emptyText}>
+            {searchQuery ? 'No rooms match your search' : 'No amenities found'}
+          </Text>
         </View>
       ) : (
         <FlatList
-          data={amenities}
+          data={filteredAmenities}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity style={styles.item} onPress={() => onAmenityPress(item)}>

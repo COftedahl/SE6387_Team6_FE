@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as Speech from 'expo-speech';
 
 export default function NavigationInstructionsView({ 
   instructions, 
@@ -10,6 +11,37 @@ export default function NavigationInstructionsView({
   onCancel 
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isSpeechEnabled, setIsSpeechEnabled] = useState(false);
+
+  // Speak current instruction when it changes and speech is enabled
+  useEffect(() => {
+    if (isSpeechEnabled && instructions && instructions[currentIndex]) {
+      Speech.speak(instructions[currentIndex], {
+        language: 'en-US',
+        pitch: 1.0,
+        rate: 0.9,
+      });
+    }
+
+    return () => {
+      Speech.stop(); // stop speaking when component unmounts or instruction changes
+    };
+  }, [currentIndex, isSpeechEnabled, instructions]);
+
+  const toggleSpeech = () => {
+    const newValue = !isSpeechEnabled;
+    setIsSpeechEnabled(newValue);
+    
+    if (newValue && instructions && instructions[currentIndex]) {
+      Speech.speak(instructions[currentIndex], {
+        language: 'en-US',
+        pitch: 1.0,
+        rate: 0.9,
+      });
+    } else {
+      Speech.stop();
+    }
+  };
 
   const getReasonText = (reason) => {
     switch (reason) {
@@ -89,12 +121,24 @@ export default function NavigationInstructionsView({
         </Modal>
       )}
 
-      {/* Header */}
+      {/* Header with speech toggle */}
       <View style={styles.header}>
         <Text style={styles.title}>Navigation</Text>
-        <Text style={styles.stepCount}>
-          {currentIndex + 1} / {instructions.length}
-        </Text>
+        <View style={styles.headerRight}>
+          <TouchableOpacity 
+            onPress={toggleSpeech}
+            style={styles.speechButton}
+          >
+            <Ionicons 
+              name={isSpeechEnabled ? "volume-high" : "volume-mute"} 
+              size={24} 
+              color={isSpeechEnabled ? "#FF3B00" : "#999"} 
+            />
+          </TouchableOpacity>
+          <Text style={styles.stepCount}>
+            {currentIndex + 1} / {instructions.length}
+          </Text>
+        </View>
       </View>
 
       {/* Current instruction highlight */}
