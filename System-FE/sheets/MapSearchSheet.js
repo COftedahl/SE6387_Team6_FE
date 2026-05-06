@@ -12,7 +12,7 @@ import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { Ionicons } from '@expo/vector-icons';
 
 const MapSearchSheet = forwardRef(function MapSearchSheet(
-  { navigate, cancelNavigation, instructions, onAmenitiesChange, onAmenitySelect },
+  {userPosition, navigate, cancelNavigation, rerouteOffer, acceptReroute, declineReroute, instructions, onAmenitiesChange, onAmenitySelect },
   ref
 ) {
   const sheetRef = useRef(null);
@@ -36,7 +36,7 @@ const MapSearchSheet = forwardRef(function MapSearchSheet(
   const [filters, setFilters] = useState({
     sort: "Best Route",   // always preset
     restroom: null,       // no preset
-    accessible: null,     // no preset
+    useAccessibleRouting: false, // add this for navigation routing
   });
 
   const goTo = (viewName, snapIndex = 1) => {
@@ -44,7 +44,7 @@ const MapSearchSheet = forwardRef(function MapSearchSheet(
       setFilters({
         sort: "Best Route",
         restroom: null,
-        accessible: null,
+        useAccessibleRouting: false, // add this for navigation routing
       });
       onAmenitiesChange([]); // clear markers when leaving amenities
       onAmenitySelect(null); // clear green marker
@@ -54,13 +54,12 @@ const MapSearchSheet = forwardRef(function MapSearchSheet(
   };
 
   const handleStart = (amenity) => {
-    const source = { latitude: 32.897257, longitude: -97.0419 };
     const target = { 
       latitude: parseFloat(amenity.location.y), 
       longitude: parseFloat(amenity.location.x) 
     };
 
-    navigate(source, target);
+    navigate(userPosition, target, filters.useAccessibleRouting);
     goTo("instructions", 0);
   };
 
@@ -94,7 +93,8 @@ const MapSearchSheet = forwardRef(function MapSearchSheet(
         {view === "amenities" && (
           <AmenitiesListView
             category={selectedCategory}
-            filters={filters}          // make sure this line is there
+            filters={filters}
+            userPosition={userPosition}
             onBack={() => goTo("categories", 1)}
             onAmenityPress={(amenity) => {
               setSelectedAmenity(amenity);
@@ -125,6 +125,16 @@ const MapSearchSheet = forwardRef(function MapSearchSheet(
         {view === "instructions" && (
           <NavigationInstructionsView
             instructions={instructions}
+            rerouteOffer={rerouteOffer}
+            // onAcceptReroute={acceptReroute}
+            onAcceptReroute={(newAmenity) => {
+              console.log("prev amenity: ", selectedAmenity)
+              setSelectedAmenity(newAmenity)
+              onAmenitySelect(newAmenity)
+              console.log("new amenity: ", newAmenity)
+              acceptReroute()
+            }}
+            onDeclineReroute={declineReroute}
             onCancel={handleCancel}
           />
         )}

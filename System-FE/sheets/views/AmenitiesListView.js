@@ -5,18 +5,19 @@ import SearchBar from '../../components/SearchBar';
 import { getAmenitiesSuggested } from '../../api/amenitiesApi';
 import { buildFiltersAndSort } from '../../utils/filterHelpers';
 
-export default function AmenitiesListView({ category, filters, onBack, onAmenityPress, onFilterPress, onSearchFocus, onAmenitiesLoaded }) {
+export default function AmenitiesListView({ category, filters, userPosition, onBack, onAmenityPress, onFilterPress, onSearchFocus, onAmenitiesLoaded }) {
 
   const [amenities, setAmenities] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(''); 
 
   useEffect(() => {
     const fetchAmenities = async () => {
       setLoading(true);
       const { filterList, sortMethod } = buildFiltersAndSort(filters, category.amenityType);
       const data = await getAmenitiesSuggested({
-        x: "-97.0419",
-        y: "32.897257",
+        x: String(userPosition.longitude), // use real position
+        y: String(userPosition.latitude),
         filters: filterList,
         sortMethod,
       });
@@ -26,7 +27,7 @@ export default function AmenitiesListView({ category, filters, onBack, onAmenity
       setLoading(false);
     };
     fetchAmenities();
-  }, [category, filters]); // refetches when filters change
+  }, [category, filters, userPosition]); // refetches when filters change
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -35,6 +36,12 @@ export default function AmenitiesListView({ category, filters, onBack, onAmenity
       default: return '#999';
     }
   };
+
+
+  // Filter amenities by search query
+  const filteredAmenities = amenities.filter(amenity => 
+    amenity.room.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <>
@@ -47,20 +54,27 @@ export default function AmenitiesListView({ category, filters, onBack, onAmenity
       </View>
 
       <View style={styles.searchWrapper}>
-        <SearchBar onFocus={onSearchFocus} onFilterPress={onFilterPress} />
+        <SearchBar 
+          value={searchQuery}
+          onChange={setSearchQuery}
+          onFocus={onSearchFocus} 
+          onFilterPress={onFilterPress} 
+        />
       </View>
 
       {loading ? (
         <View style={styles.centered}>
           <ActivityIndicator size="large" color="#FF3B00" />
         </View>
-      ) : amenities.length === 0 ? (
+      ) : filteredAmenities.length === 0 ? (
         <View style={styles.centered}>
-          <Text style={styles.emptyText}>No amenities found</Text>
+          <Text style={styles.emptyText}>
+            {searchQuery ? 'No rooms match your search' : 'No amenities found'}
+          </Text>
         </View>
       ) : (
         <FlatList
-          data={amenities}
+          data={filteredAmenities}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity style={styles.item} onPress={() => onAmenityPress(item)}>

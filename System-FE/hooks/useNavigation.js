@@ -2,14 +2,18 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import WS_MESSAGE_TYPE from '../constants/WSMessageType';
 
 const WS_URL = 'ws://10.0.2.2:5000/nav';
+const POSITION_UPDATE_INTERVAL = 5000;
 
 const useNavigation = () => {
   const [navID, setNavID] = useState(null);
   const [route, setRoute] = useState([]);
   const [instructions, setInstructions] = useState([]); // add this
   const [connected, setConnected] = useState(false);
+  const [rerouteOffer, setRerouteOffer] = useState(null); // { newRoute, reason, targetAmenity }
+  const [isNavigating, setIsNavigating] = useState(false); // track if actively navigating
   const ws = useRef(null);
   const pendingNavigation = useRef(null); // stores navigate call if ws is reconnecting
+  const positionIntervalRef = useRef(null);
 
   const connect = useCallback(() => {
     // don't reconnect if already open
@@ -51,7 +55,17 @@ const useNavigation = () => {
             longitude: parseFloat(loc.x),
           }));
           setRoute(coords);
-          setInstructions(path.instructions || []); // add this
+          setInstructions(path.instructions || []);
+          setIsNavigating(true);
+          break;
+
+        case WS_MESSAGE_TYPE.OFFER_REROUTE:
+          const offer = message.body;
+          setRerouteOffer({
+            newRoute: offer.newRoute,
+            reason: offer.rerouteReason,
+            targetAmenity: offer.targetAmenity
+          });
           break;
 
         default:
@@ -70,12 +84,26 @@ const useNavigation = () => {
     };
   }, []);
 
+
   useEffect(() => {
     connect();
     return () => {
       if (ws.current) ws.current.close();
     };
   }, [connect]);
+
+
+  const updatePosition = (position) => {
+    if (!ws.current || !navID || !isNavigating) return;
+    ws.current.send(JSON.stringify({
+      messageType: WS_MESSAGE_TYPE.UPDATE_POSITION,
+      body: {
+        x: String(position.longitude),
+        y: String(position.latitude),
+      }
+    }));
+  };
+
 
   const navigate = (source, target, useAccessibleRouting = false) => {
     // if disconnected, store the request and reconnect
@@ -105,11 +133,39 @@ const useNavigation = () => {
       ws.current.close();
     }
     setRoute([]);
+    setInstructions([]);
     setNavID(null);
     setConnected(false);
+    setIsNavigating(false);
+    setRerouteOffer(null);
   };
 
-  return { navID, route, instructions, connected, navigate, cancelNavigation };
+  const acceptReroute = () => {
+    if (!ws.current || !navID) return;
+    ws.current.send(JSON.stringify({
+      messageType: WS_MESSAGE_TYPE.ACCEPT_REROUTE,
+      body: navID,
+    }));
+    setRerouteOffer(null); // clear the offer
+  };
+
+  const declineReroute = () => {
+    setRerouteOffer(null); // just dismiss
+  };
+
+  return { 
+    navID, 
+    route, 
+    instructions, 
+    connected, 
+    isNavigating,
+    navigate, 
+    cancelNavigation,
+    rerouteOffer,
+    acceptReroute,
+    declineReroute,
+    updatePosition,
+  };
 };
 
 export default useNavigation;
